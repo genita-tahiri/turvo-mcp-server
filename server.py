@@ -3,6 +3,7 @@ import sys
 import time
 import logging
 from typing import Any, Optional
+from mcp.server.transport_security import TransportSecuritySettings
 
 import httpx
 from mcp.server.fastmcp import FastMCP
@@ -30,7 +31,16 @@ TURVO_API_KEY = os.environ["TURVO_API_KEY"]
 TURVO_USERNAME = os.environ["TURVO_USERNAME"]
 TURVO_PASSWORD = os.environ["TURVO_PASSWORD"]
 
-mcp = FastMCP("turvo")
+mcp = FastMCP(
+    "turvo",
+    transport_security=TransportSecuritySettings(
+        allowed_hosts=[
+            "turvo-mcp-server-production.up.railway.app",
+            "turvo-mcp-server-production.up.railway.app:*",
+        ],
+        allowed_origins=[],
+    ),
+)
 
 _token_cache: dict[str, Any] = {"access_token": None, "expires_at": 0.0}
 
