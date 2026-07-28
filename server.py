@@ -98,14 +98,19 @@ async def turvo_request(method: str, path: str, **kwargs) -> dict:
 
 @mcp.tool()
 async def get_shipment(shipment_id: str) -> str:
-    """Retrieve full details of a Turvo shipment by its ID.
-
-    Args:
-        shipment_id: The Turvo shipment ID.
-    """
-    data = await turvo_request("GET", f"/shipments/{shipment_id}")
+    """Retrieve full details of a Turvo shipment by its numeric ID or customId (e.g. 'CL-25690')."""
+    resolved_id = shipment_id
+    if not shipment_id.isdigit():
+        lookup = await turvo_request(
+            "GET", "/shipments/list",
+            params={"customId[eq]": shipment_id, "pageSize": 1},
+        )
+        shipments = lookup.get("details", {}).get("shipments", [])
+        if not shipments:
+            return f"No shipment found with customId '{shipment_id}'."
+        resolved_id = str(shipments[0]["id"])
+    data = await turvo_request("GET", f"/shipments/{resolved_id}")
     return str(data)
-
 
 @mcp.tool()
 async def search_shipments(status: Optional[str] = None, page_size: int = 10) -> str:
