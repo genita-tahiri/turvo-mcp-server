@@ -77,19 +77,15 @@ async def get_access_token() -> str:
     logger.info("Refreshed Turvo access token, expires in %s seconds", data.get("expires_in"))
     return _token_cache["access_token"]
 
-
-async def turvo_request(method: str, path: str, **kwargs) -> dict:
+async def turvo_request(method: str, path: str, **kwargs: dict) -> Any:
     """Make an authenticated request against the Turvo public API."""
     token = await get_access_token()
     headers = kwargs.pop("headers", {})
     headers["Authorization"] = f"Bearer {token}"
+    headers["x-api-key"] = TURVO_API_KEY
     async with httpx.AsyncClient() as client:
         resp = await client.request(method, f"{BASE_URL}{path}", headers=headers, timeout=30.0, **kwargs)
-        resp.raise_for_status()
-        if resp.content:
-            return resp.json()
-        return {}
-
+    resp.raise_for_status()
 
 # ---------------------------------------------------------------------------
 # MCP tools -- each of these becomes something Claude can call.
