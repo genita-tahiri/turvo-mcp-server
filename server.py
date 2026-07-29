@@ -110,19 +110,19 @@ async def get_shipment(shipment_id: str) -> str:
     return str(data)
 
 @mcp.tool()
-async def search_shipments(status: Optional[str] = None, page_size: int = 10) -> str:
+async def search_shipments(status: Optional[str] = None, page_size: int = 10, start: int = 0) -> str:
     """List / filter shipments, optionally by status.
 
     Args:
         status: Optional Turvo shipment status key to filter by.
         page_size: Max number of results to return (default 10).
+        start: Number of records to skip, for paging through results (default 0).
     """
-    params: dict[str, Any] = {"pageSize": page_size}
+    params: dict[str, Any] = {"pageSize": page_size, "start": start}
     if status:
         params["status[eq]"] = status
     data = await turvo_request("GET", "/shipments/list", params=params)
     return str(data)
-
 
 @mcp.tool()
 async def update_shipment_status(shipment_id: str, status_key: str, status_value: str) -> str:
@@ -150,14 +150,15 @@ async def get_carrier(carrier_id: str) -> str:
 
 
 @mcp.tool()
-async def search_carriers(name: Optional[str] = None, page_size: int = 10) -> str:
+async def search_carriers(name: Optional[str] = None, page_size: int = 10, start: int = 0) -> str:
     """Search carrier accounts, optionally filtering by name.
 
     Args:
         name: Optional carrier name to filter by.
         page_size: Max number of results to return (default 10).
+        start: Number of records to skip, for paging through results (default 0).
     """
-    params: dict[str, Any] = {"pageSize": page_size}
+    params: dict[str, Any] = {"pageSize": page_size, "start": start}
     if name:
         params["name[eq]"] = name
     data = await turvo_request("GET", "/carriers/list", params=params)
