@@ -86,6 +86,7 @@ async def turvo_request(method: str, path: str, **kwargs: dict) -> Any:
     async with httpx.AsyncClient() as client:
         resp = await client.request(method, f"{BASE_URL}{path}", headers=headers, timeout=30.0, **kwargs)
     resp.raise_for_status()
+    return resp.json()
 
 # ---------------------------------------------------------------------------
 # MCP tools -- each of these becomes something Claude can call.
